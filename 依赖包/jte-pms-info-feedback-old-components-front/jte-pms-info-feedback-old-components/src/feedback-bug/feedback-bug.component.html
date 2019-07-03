@@ -1,0 +1,54 @@
+
+<nz-modal style="background-color: #9FA0A0" [nzWidth]="'1000px'" [nzVisible]="feedBackVisible" [nzFooter]="false"
+        [nzTitle]="'反馈'"
+        [nzContent]="modalContent"
+        (nzOnCancel)="close()">
+<ng-template #modalContent>
+  <div>
+    <div nz-row>
+      <div class="arrive">
+        <div class="pull-left f-width mb">
+          <div class="pull-left ft arriveT">
+            <span style="color: red">*</span>电话：
+          </div>
+          <div class="pull-left fc inputWd">
+            <nz-input style="width:164px;" [(ngModel)]="customerPhone" [nzPlaceHolder]="'请输入电话号码'" ></nz-input>
+          </div>
+        </div>
+        <div class="pull-left f-width mb">
+          <div class="pull-left ft arriveT">
+            QQ：
+          </div>
+          <div class="pull-left fc inputWd">
+            <nz-input style="width:164px;" [(ngModel)]="customerQQ" [nzPlaceHolder]="'请输入QQ号码'" ></nz-input>
+          </div>
+        </div>
+        <div class="clear"></div>
+      </div>
+      
+      <div class="arrive">
+        <div class="pull-left f-width mb" style="width: 560px;">
+          <div class="pull-left ft arriveT">
+            <span style="color: red">*</span>描述：
+          </div>
+          <div class="pull-left fc inputWd" style="width: 465px;">
+            <nz-input [nzRows]="2" [nzType]="'textarea'" [(ngModel)]="feedbackInputText" [nzPlaceHolder]="'请输入描述'"
+                      [nzSize]="'large'">
+            </nz-input>
+          </div>
+        </div>
+        <div class="pull-left f-width mb">
+          <div class="pull-left fc inputWd">
+            <button nz-button [nzType]="'primary'" (click)="submitIssue()" [nzSize]="'large'" [nzLoading]="isWorkOrder">
+              提交
+            </button>
+          </div>
+        </div>
+        <div class="clear"></div>
+      </div>
+    </div>
+    <hr>
+    <div  [ngClass]="currentClasses"></div>
+  </div>
+</ng-template>
+</nz-modal>

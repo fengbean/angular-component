@@ -1,0 +1,194 @@
+<div class="wrapG" *ngIf="workOrderFlag===true">
+    <div class="search">
+        <span>时间:</span>
+        <nz-datepicker [(ngModel)]="beginTime" [nzPlaceHolder]="'请选择开始时间'"></nz-datepicker>
+        至
+        <nz-datepicker [(ngModel)]="endTime" [nzPlaceHolder]="'请选择结束时间'"></nz-datepicker>
+        <div class="right">
+            <nz-input [nzType]="'search'" [(ngModel)]="keywords" [nzPlaceHolder]="'请输入关键字查询'" style="width: 200px;" (nzOnSearch)="select()"></nz-input>
+            <button nz-button [nzType]="'primary'" (click)="select()">
+                <span>查 询</span>
+            </button>
+            <button nz-button [nzType]="'primary'" (click)="addWorkOrder()">
+                <span>提交工单</span>
+            </button>
+        </div>
+
+    </div>
+    <div class="goodsL">
+        <nz-table #nzTable [nzDataSource]="workOrderList" [nzScroll]="{ y: 540 }" [nzIsPagination]="false">
+            <thead nz-thead>
+                <tr>
+                    <th nz-th>
+                        <span>工单编号</span>
+                    </th>
+                    <th nz-th>
+                        <span>问题内容</span>
+                    </th>
+                    <th nz-th>
+                        <span>提交时间</span>
+                    </th>
+                    <th nz-th>
+                        <span>状态</span>
+                    </th>
+                    <th nz-th>
+                        <span>操作</span>
+                    </th>
+                </tr>
+            </thead>
+            <tbody nz-tbody>
+                <tr nz-tbody-tr *ngFor="let workOrder of workOrderList">
+                    <td nz-td>
+                        {{workOrder.servicecode}}
+                    </td>
+                    <td nz-td>
+                        {{workOrder.servicedetail}}
+                    </td>
+                    <td nz-td>{{workOrder.submittime | date:'yyyy-MM-dd HH:mm:ss'}}</td>
+                    <td nz-td>
+                        <ng-container *ngIf="workOrder.servicestate==='0'">未处理</ng-container>
+                        <ng-container *ngIf="workOrder.servicestate==='1'">处理中</ng-container>
+                        <ng-container *ngIf="workOrder.servicestate==='2'">处理暂停</ng-container>
+                        <ng-container *ngIf="workOrder.servicestate==='3'">处理完成</ng-container>
+                        <ng-container *ngIf="workOrder.servicestate==='4'">失效</ng-container>
+                        <ng-container *ngIf="workOrder.servicestate==='5'">无需处理</ng-container>
+                    </td>
+                    <td nz-td>
+                        <a (click)="orderInfo(workOrder.servicecode)">查看</a>
+                    </td>
+                </tr>
+            </tbody>
+        </nz-table>
+        <div class="clear"></div>
+    </div>
+    <div style="text-align: right; margin-top: 16px;" *ngIf="totalItems > 0">
+        <nz-pagination style="text-align: right;" [(nzPageSize)]="pageSize" [(nzTotal)]="totalItems" nzShowSizeChanger nzShowTotal
+            [(nzPageIndex)]="currentPage"></nz-pagination>
+    </div>
+    <div class="sub">
+        <button nz-button [nzType]="'default'" (click)="close()">
+            <span>关 闭</span>
+        </button>
+    </div>
+</div>
+<div class="wrapG" *ngIf="workOrderFlag===false">
+    <div class="content" style="padding: 0 10px;">
+        <div style="width: 100%;">
+            <div class="orderTitle" style="margin-top: 6px;">
+            </div>
+            <div class="wrapcheck">
+                <div class="">
+                    <div class="step-first " [class.stepOne]="processClass(['1','2','3'])">
+                        <span class="">已受理</span>
+                    </div>
+                    <div class="accept stepTwo" [class.stepTwo]="processClass(['1','2','3'])">
+                        <span class="acceptProcess">处理中</span>
+                    </div>
+                    <div class="accept stepThree" [class.stepThree]="processClass(['3'])">
+                        <span class="acceptProcess">处理完成</span>
+                    </div>
+                    <div class="step-last stepFour" [class.stepFour]="processClass(['3'])">
+                        <span class="acceptProcess">开始评价</span>
+                    </div>
+                </div>
+                <div class="">
+                    <span class="problem">问题描述</span>
+                </div>
+                <div class="wrapProblem">
+                    <div class="problemName">
+                        {{workOrder.servicedetail}}
+                    </div>
+                    <div class="acceptDetail">
+                        <span>工单编号：{{workOrder.servicecode}}</span>
+                        <span>提交时间：{{workOrder.submittime | date:'yyyy-MM-dd HH:mm:ss'}}</span>
+                        <span>状态：
+                            <ng-container *ngIf="workOrder.servicestate=='0'">
+                                未处理
+                            </ng-container>
+                            <ng-container *ngIf="workOrder.servicestate=='1'">
+                                处理中
+                            </ng-container>
+                            <ng-container *ngIf="workOrder.servicestate=='2'">
+                                处理暂停
+                            </ng-container>
+                            <ng-container *ngIf="workOrder.servicestate=='3'">
+                                处理完成
+                            </ng-container>
+                            <ng-container *ngIf="workOrder.servicestate=='4'">
+                                失效
+                            </ng-container>
+                            <ng-container *ngIf="workOrder.servicestate=='5'">
+                                无需处理
+                            </ng-container>
+                        </span>
+                    </div>
+                </div>
+                <div *ngIf="commentList!=null&&commentList.length>0">
+                    <span class="problem">沟通记录</span>
+                    <div class="communicate" *ngFor="let commentItem of commentList">
+                        <div class="user-icon pull-left">
+                            <img src="../../../../base/assets/img/person-05.png" />
+                        </div>
+                        <div class="pull-left">
+                            <div class="lines">
+                                <span class="">{{commentItem.loginName}}</span>
+                            </div>
+                            <div class="lines">
+                                <ng-container *ngIf="commentItem.usertype=='1'">
+                                    回复：
+                                </ng-container>
+                                <ng-container *ngIf="commentItem.usertype!='1'">
+                                    问题描述
+                                </ng-container>
+                                <span>{{commentItem.content}}</span>
+                            </div>
+                            <div class="lines">
+                                <span>{{commentItem.createTime | date:'yyyy-MM-dd HH:mm:ss'}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="">
+                    <span class="problem">继续追问</span>
+                </div>
+                <div class="againProblem">
+                    <textarea rows="5" [(ngModel)]="newCommentContent"></textarea>
+                    <br/>
+                    <button nz-button nzType="primary" (click)="addComment()">
+                        <span>提 交</span>
+                    </button>
+                </div>
+                <ng-container *ngIf="workOrder.servicestate=='3'">
+                    <div class="">
+                        <span class="problem">待您评价</span>
+                    </div>
+                    <div class="evaluateTitle">
+                        您对此工单处理结果的评价：
+                    </div>
+                    <div class="satisfaction">
+                        <label>
+                            <span>
+                                <input type="radio" name="satisfaction" [(ngModel)]="appraise.result" value="1" [disabled]="isAppraised">满意</span>
+                        </label>
+                        <label>
+                            <span>
+                                <input type="radio" name="satisfaction" [(ngModel)]="appraise.result" value="2" [disabled]="isAppraised">不满意</span>
+                        </label>
+                    </div>
+                    <div class="againProblem">
+                        <textarea rows="5" [(ngModel)]="appraise.remark" [disabled]="isAppraised" *ngIf="appraise.remark!=null&&appraise.remark!=''"></textarea>
+                        <br/>
+                        <button nz-button nzType="primary" (click)="addAppraise()" *ngIf="!isAppraised">
+                            <span>提 交</span>
+                        </button>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+    <div class="sub">
+        <button nz-button [nzType]="'default'" (click)="closeOrderInfo()">
+            <span>关 闭</span>
+        </button>
+    </div>
+</div>
